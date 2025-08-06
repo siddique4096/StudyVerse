@@ -30,6 +30,7 @@ export async function studyBotRespondToQuestions(input: StudyBotRespondToQuestio
 const studyBotPrompt = ai.definePrompt({
   name: 'studyBotPrompt',
   input: {schema: StudyBotRespondToQuestionsInputSchema},
+  output: {schema: StudyBotRespondToQuestionsOutputSchema},
   prompt: `You are StudyBot, a friendly and helpful study assistant. A student has asked you a question.
 
 Question: {{{question}}}
@@ -46,12 +47,12 @@ const studyBotRespondToQuestionsFlow = ai.defineFlow(
   },
   async (input) => {
     const llmResponse = await studyBotPrompt(input);
-    const textResponse = llmResponse.text;
+    const output = llmResponse.output;
     
-    if (textResponse === undefined) {
+    if (output === null || output === undefined) {
       return { response: "Sorry, I couldn't generate a response." };
     }
 
-    return { response: textResponse };
+    return { response: output.response };
   }
 );

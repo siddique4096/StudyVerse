@@ -12,15 +12,11 @@ import { Skeleton } from '../ui/skeleton';
 import { db, auth } from '@/lib/firebase';
 import {
   collection,
-  query,
-  orderBy,
-  onSnapshot,
   addDoc,
   serverTimestamp,
   where,
   type Timestamp,
   doc,
-  getDoc,
   setDoc
 } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';

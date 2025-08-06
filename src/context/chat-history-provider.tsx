@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Timestamp, collection, onSnapshot, query, orderBy, doc, deleteDoc, getDocs, Unsubscribe } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import type { User } from 'firebase/auth';
 
 export interface ChatMessage {
   id?: string;
