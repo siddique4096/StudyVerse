@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { UserContext } from '@/context/user-provider';
 import { Book } from 'lucide-react';
 
@@ -12,16 +14,22 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const passwordValidated = localStorage.getItem('studyverse-password-validated') === 'true';
-    const storedUsername = localStorage.getItem('studyverse-username');
 
     if (!passwordValidated) {
       router.replace('/');
-    } else if (!storedUsername) {
-      router.replace('/login');
-    } else {
-      setIsVerified(true);
+      return;
     }
-  }, [router, username]);
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsVerified(true);
+      } else {
+        router.replace('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   if (!isVerified) {
     return (
@@ -30,7 +38,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
           <Book className="h-8 w-8 animate-pulse" />
           <h1 className="font-headline">StudyVerse</h1>
         </div>
-        <p className="text-muted-foreground">Loading your dashboard...</p>
+        <p className="text-muted-foreground">Verifying access...</p>
       </div>
     );
   }

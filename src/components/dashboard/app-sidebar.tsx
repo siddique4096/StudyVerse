@@ -17,16 +17,22 @@ import { UserContext } from '@/context/user-provider';
 import { Book, LogOut, Settings } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { auth } from '@/lib/firebase';
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { username } = useContext(UserContext);
 
-  const handleLogout = () => {
-    localStorage.removeItem('studyverse-username');
-    localStorage.removeItem('studyverse-password-validated');
-    router.replace('/');
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      localStorage.removeItem('studyverse-username');
+      localStorage.removeItem('studyverse-password-validated');
+      router.replace('/');
+    } catch (error) {
+        console.error("Error signing out: ", error);
+    }
   };
 
   return (
