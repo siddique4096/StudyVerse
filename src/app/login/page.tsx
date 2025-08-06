@@ -41,6 +41,7 @@ export default function AuthPage() {
         title: 'Sign Up Failed',
         description: error.message,
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -58,6 +59,7 @@ export default function AuthPage() {
         title: 'Login Failed',
         description: error.message,
       });
+    } finally {
       setLoading(false);
     }
   };

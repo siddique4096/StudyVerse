@@ -19,7 +19,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       router.replace('/');
       return;
     }
-
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsVerified(true);
