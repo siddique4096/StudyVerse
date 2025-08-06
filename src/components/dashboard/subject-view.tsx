@@ -19,9 +19,10 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { UserContext } from '@/context/user-provider';
-import { UploadCloud, File as FileIcon, Download, X } from 'lucide-react';
+import { UploadCloud, File as FileIcon, Download, X, WifiOff } from 'lucide-react';
 import { SUBJECTS } from '@/lib/constants';
 import { ScrollArea } from '../ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 interface FileData {
   id: string;
@@ -42,6 +43,7 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [files, setFiles] = useState<FileData[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const { username } = useContext(UserContext);
   const { toast } = useToast();
 
@@ -49,6 +51,10 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
   const Icon = subject?.icon;
 
   useEffect(() => {
+    if (!db || !storage) {
+        setError("File service is currently unavailable.");
+        return;
+    }
     const q = query(
       collection(db, 'files'),
       where('subject', '==', subjectId),
@@ -59,6 +65,10 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
         (doc) => ({ id: doc.id, ...doc.data() } as FileData)
       );
       setFiles(fileList);
+      setError(null);
+    }, (err) => {
+      console.error("Error fetching files:", err);
+      setError("Could not load files. Please check your connection.");
     });
     return () => unsubscribe();
   }, [subjectId]);
@@ -70,7 +80,7 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
   };
 
   const handleUpload = async () => {
-    if (!file || !username) return;
+    if (!file || !username || error) return;
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -113,6 +123,10 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
       }
     );
   };
+  
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
     <ScrollArea className="h-full">
@@ -128,18 +142,30 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
             </div>
           </CardHeader>
           <CardContent>
+            {error ? (
+              <Alert variant="destructive">
+                <WifiOff className="h-4 w-4" />
+                <AlertTitle>Service Unavailable</AlertTitle>
+                <AlertDescription>
+                  File uploads and downloads are currently offline. 
+                  <Button onClick={handleRefresh} variant="link" className="p-0 h-auto ml-1">
+                    Refresh connection.
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : (
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Input id="file-upload" type="file" onChange={handleFileChange} className="hidden" />
+                <Input id="file-upload" type="file" onChange={handleFileChange} className="hidden" disabled={isUploading || !!error} />
                 <label htmlFor="file-upload" className="flex-1">
-                    <Button variant="outline" asChild className="w-full cursor-pointer">
+                    <Button variant="outline" asChild className="w-full cursor-pointer" disabled={isUploading || !!error}>
                         <div>
                             <UploadCloud className="mr-2 h-4 w-4" />
                             Choose file
                         </div>
                     </Button>
                 </label>
-                <Button onClick={handleUpload} disabled={!file || isUploading}>
+                <Button onClick={handleUpload} disabled={!file || isUploading || !!error}>
                   Upload
                 </Button>
               </div>
@@ -160,14 +186,19 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
                 </div>
               )}
             </div>
+            )}
           </CardContent>
         </Card>
 
         <div className="space-y-4">
             <h3 className="font-headline text-2xl">Shared Materials</h3>
-            {files.length === 0 ? (
+            {files.length === 0 && !error && (
                 <p className="text-muted-foreground text-center py-8">No materials shared for this subject yet. Be the first!</p>
-            ) : (
+            )}
+             {files.length === 0 && error && (
+                <p className="text-muted-foreground text-center py-8">File listing is unavailable.</p>
+            )}
+            {files.length > 0 && (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {files.map((f) => (
                         <Card key={f.id}>
