@@ -5,8 +5,8 @@ import { SUBJECTS } from '@/lib/constants';
 import { notFound } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export default function SubjectPage({ params }: { params: { subject: string } }) {
-    const subject = SUBJECTS.find(s => s.id === params.subject);
+export default function SubjectPage({ params: { subject: subjectId } }: { params: { subject: string } }) {
+    const subject = SUBJECTS.find(s => s.id === subjectId);
 
     if (!subject) {
         notFound();
