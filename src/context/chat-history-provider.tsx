@@ -53,7 +53,10 @@ export const ChatHistoryProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Failed to load chats from local storage", error);
     }
-    createNewChat();
+    // Only create a new chat if there are no chats loaded
+    if (chats.length === 0) {
+      createNewChat();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -61,6 +64,9 @@ export const ChatHistoryProvider = ({ children }: { children: ReactNode }) => {
     try {
         if(chats.length > 0) {
             localStorage.setItem('studybot-chats', JSON.stringify(chats));
+        } else {
+            // If all chats are deleted, remove the item from local storage
+            localStorage.removeItem('studybot-chats');
         }
     } catch (error) {
       console.error("Failed to save chats to local storage", error);
@@ -87,6 +93,7 @@ export const ChatHistoryProvider = ({ children }: { children: ReactNode }) => {
     setChats(prevChats => {
         const remainingChats = prevChats.filter(chat => chat.id !== chatId);
         if (remainingChats.length === 0) {
+            // createNewChat will handle setting the new active ID
             const newChat: Chat = {
               id: uuidv4(),
               title: 'New Conversation',
@@ -113,8 +120,8 @@ export const ChatHistoryProvider = ({ children }: { children: ReactNode }) => {
         if (chat.id === chatId) {
           const newMessages = [...chat.messages, message];
           // Update title with the first user message
-          if (chat.title === 'New Conversation' && message.role === 'user') {
-            return { ...chat, messages: newMessages, title: message.content };
+          if (chat.title === 'New Conversation' && message.role === 'user' && message.content.length > 0) {
+            return { ...chat, messages: newMessages, title: message.content.substring(0, 30) };
           }
           return { ...chat, messages: newMessages };
         }

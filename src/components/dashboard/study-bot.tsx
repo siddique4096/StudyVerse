@@ -55,6 +55,7 @@ export function StudyBot() {
     setIsSending(true);
     const userMessage: Message = { id: uuidv4(), role: 'user', content: input };
     addMessageToChat(activeChatId, userMessage);
+    const question = input;
     setInput('');
 
     const botMessagePlaceholder: Message = { id: uuidv4(), role: 'model', content: '...' };
@@ -65,7 +66,7 @@ export function StudyBot() {
       
       const response = await studyBotRespondsToQuestions({
         history: historyForFlow,
-        question: input,
+        question: question,
       });
       
       const botMessage: Message = { id: botMessagePlaceholder.id, role: 'model', content: response.response };
@@ -85,9 +86,9 @@ export function StudyBot() {
   };
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden">
       <StudyBotHistory />
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-6">
             {activeMessages.map((message) => (
@@ -117,7 +118,7 @@ export function StudyBot() {
             ))}
           </div>
         </ScrollArea>
-        <div className="border-t p-4 bg-background">
+        <div className="border-t bg-background p-4">
           <form onSubmit={handleSendMessage} className="relative flex gap-2">
             <Input
               ref={inputRef}
@@ -127,11 +128,11 @@ export function StudyBot() {
               className="pr-12"
               disabled={isSending}
             />
-            <Button type="submit" size="icon" disabled={isSending || !input.trim()} className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+            <Button type="submit" size="icon" disabled={isSending || !input.trim()} className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2">
               {isSending ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </form>
-          <p className="text-xs text-muted-foreground text-center mt-2">
+          <p className="mt-2 text-center text-xs text-muted-foreground">
             Press <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">Enter</kbd> to send. StudyBot may produce inaccurate information.
           </p>
         </div>
