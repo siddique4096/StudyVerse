@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { getAuth, type Auth } from 'firebase/auth';
@@ -14,8 +14,8 @@ const firebaseConfig = {
   appId: "1:847510398379:web:2f8eeeb9af6b4ab5ee9eee",
 };
 
-// Initialize Firebase for SSR
-const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Initialize Firebase
+const app: FirebaseApp = initializeApp(firebaseConfig);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
 const auth: Auth = getAuth(app);
