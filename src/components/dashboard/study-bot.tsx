@@ -41,6 +41,13 @@ export function StudyBot() {
     inputRef.current?.focus();
   }, [activeChatId]);
 
+  // Re-focus the input after the bot has finished responding
+  useEffect(() => {
+    if (!isSending) {
+      inputRef.current?.focus();
+    }
+  }, [isSending]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() === '' || isSending) return;
