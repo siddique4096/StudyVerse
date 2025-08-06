@@ -18,10 +18,3 @@ export default function SubjectPage({ params }: { params: { subject: string } })
         </ScrollArea>
     );
 }
-
-// This function is still needed for Next.js to know which dynamic routes to build at build time.
-export async function generateStaticParams() {
-    return SUBJECTS.map((subject) => ({
-        subject: subject.id,
-    }));
-}
