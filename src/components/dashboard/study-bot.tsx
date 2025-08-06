@@ -78,7 +78,7 @@ export function StudyBot() {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-hidden">
       <StudyBotHistory />
       <div className="flex-1 flex flex-col">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
