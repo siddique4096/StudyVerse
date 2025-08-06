@@ -13,7 +13,7 @@ export function DashboardHeader() {
       path: '/dashboard',
       label: 'Subjects',
       icon: Book,
-      matcher: (path: string) => path === '/dashboard' || path.startsWith('/dashboard/[subject]'),
+      matcher: (path: string) => path === '/dashboard' || path.startsWith('/dashboard/subject'),
     },
     {
         path: '/dashboard/studybot',
@@ -31,7 +31,7 @@ export function DashboardHeader() {
 
   return (
     <header className="flex-shrink-0 border-b bg-background px-4 py-2 sm:px-6">
-      <div className="flex items-center justify-center sm:justify-start">
+      <div className="flex items-center justify-start">
         <nav className="flex items-center space-x-2">
           {navItems.map((item) => (
             <Button

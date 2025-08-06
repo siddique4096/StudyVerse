@@ -7,14 +7,16 @@ import { ChatHistoryProvider } from '@/context/chat-history-provider';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader />
-        <SidebarInset className="flex-1 flex flex-col overflow-y-auto">
-          <ChatHistoryProvider>{children}</ChatHistoryProvider>
-        </SidebarInset>
+    <div className="flex h-screen w-full flex-col">
+      <DashboardHeader />
+      <div className="flex flex-1 overflow-hidden">
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset className="flex-1 overflow-y-auto">
+            <ChatHistoryProvider>{children}</ChatHistoryProvider>
+          </SidebarInset>
+        </SidebarProvider>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
