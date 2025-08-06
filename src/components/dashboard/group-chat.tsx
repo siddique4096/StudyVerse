@@ -110,7 +110,6 @@ export function GroupChat() {
 
   return (
     <div className="flex h-full flex-col">
-      <h3 className="font-headline text-lg font-semibold p-4 border-b">Public Group Chat</h3>
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message) => (
@@ -148,7 +147,7 @@ export function GroupChat() {
           </Alert>
         </div>
       )}
-      <div className="border-t p-4 space-y-2">
+      <div className="border-t p-4 space-y-2 bg-background">
         <div className="flex flex-wrap gap-2">
             {QUICK_REPLIES.map((reply) => (
                 <Badge 

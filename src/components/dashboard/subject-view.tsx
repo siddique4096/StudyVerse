@@ -129,99 +129,97 @@ export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
   };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 md:p-6 space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              {Icon && <Icon className="h-10 w-10 text-primary" />}
-              <div>
-                <CardTitle className="font-headline text-3xl">{subjectName}</CardTitle>
-                <CardDescription>Share and discover study materials.</CardDescription>
-              </div>
+    <div className="p-4 md:p-6 space-y-6">
+    <Card>
+        <CardHeader>
+        <div className="flex items-center gap-4">
+            {Icon && <Icon className="h-10 w-10 text-primary" />}
+            <div>
+            <CardTitle className="font-headline text-3xl">{subjectName}</CardTitle>
+            <CardDescription>Share and discover study materials.</CardDescription>
             </div>
-          </CardHeader>
-          <CardContent>
-            {error ? (
-              <Alert variant="destructive">
-                <WifiOff className="h-4 w-4" />
-                <AlertTitle>Service Unavailable</AlertTitle>
-                <AlertDescription>
-                  File uploads and downloads are currently offline. 
-                  <Button onClick={handleRefresh} variant="link" className="p-0 h-auto ml-1">
-                    Refresh connection.
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            ) : (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Input id="file-upload" type="file" onChange={handleFileChange} className="hidden" disabled={isUploading || !!error} />
-                <label htmlFor="file-upload" className="flex-1">
-                    <Button variant="outline" asChild className="w-full cursor-pointer" disabled={isUploading || !!error}>
-                        <div>
-                            <UploadCloud className="mr-2 h-4 w-4" />
-                            Choose file
-                        </div>
-                    </Button>
-                </label>
-                <Button onClick={handleUpload} disabled={!file || isUploading || !!error}>
-                  Upload
+        </div>
+        </CardHeader>
+        <CardContent>
+        {error ? (
+            <Alert variant="destructive">
+            <WifiOff className="h-4 w-4" />
+            <AlertTitle>Service Unavailable</AlertTitle>
+            <AlertDescription>
+                File uploads and downloads are currently offline. 
+                <Button onClick={handleRefresh} variant="link" className="p-0 h-auto ml-1">
+                Refresh connection.
                 </Button>
-              </div>
+            </AlertDescription>
+            </Alert>
+        ) : (
+        <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+            <Input id="file-upload" type="file" onChange={handleFileChange} className="hidden" disabled={isUploading || !!error} />
+            <label htmlFor="file-upload" className="flex-1">
+                <Button variant="outline" asChild className="w-full cursor-pointer" disabled={isUploading || !!error}>
+                    <div>
+                        <UploadCloud className="mr-2 h-4 w-4" />
+                        Choose file
+                    </div>
+                </Button>
+            </label>
+            <Button onClick={handleUpload} disabled={!file || isUploading || !!error}>
+                Upload
+            </Button>
+            </div>
 
-              {file && !isUploading && (
-                <div className="flex items-center justify-between rounded-md border p-2 text-sm">
-                  <span>{file.name}</span>
-                  <Button variant="ghost" size="icon" onClick={() => setFile(null)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              {isUploading && uploadProgress !== null && (
-                <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Uploading {file?.name}...</p>
-                    <Progress value={uploadProgress} />
-                </div>
-              )}
+            {file && !isUploading && (
+            <div className="flex items-center justify-between rounded-md border p-2 text-sm">
+                <span>{file.name}</span>
+                <Button variant="ghost" size="icon" onClick={() => setFile(null)}>
+                <X className="h-4 w-4" />
+                </Button>
             </div>
             )}
-          </CardContent>
-        </Card>
 
-        <div className="space-y-4">
-            <h3 className="font-headline text-2xl">Shared Materials</h3>
-            {files.length === 0 && !error && (
-                <p className="text-muted-foreground text-center py-8">No materials shared for this subject yet. Be the first!</p>
-            )}
-             {files.length === 0 && error && (
-                <p className="text-muted-foreground text-center py-8">File listing is unavailable.</p>
-            )}
-            {files.length > 0 && (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {files.map((f) => (
-                        <Card key={f.id}>
-                            <CardContent className="p-4 flex items-start gap-4">
-                                <FileIcon className="h-8 w-8 text-primary/70 mt-1" />
-                                <div className="flex-1 space-y-1">
-                                    <p className="font-semibold break-all">{f.name}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Uploaded by: {f.uploader}
-                                    </p>
-                                </div>
-                                <Button asChild variant="ghost" size="icon">
-                                    <a href={f.url} target="_blank" rel="noopener noreferrer" download={f.name}>
-                                        <Download className="h-4 w-4" />
-                                    </a>
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+            {isUploading && uploadProgress !== null && (
+            <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Uploading {file?.name}...</p>
+                <Progress value={uploadProgress} />
+            </div>
             )}
         </div>
-      </div>
-    </ScrollArea>
+        )}
+        </CardContent>
+    </Card>
+
+    <div className="space-y-4">
+        <h3 className="font-headline text-2xl">Shared Materials</h3>
+        {files.length === 0 && !error && (
+            <p className="text-muted-foreground text-center py-8">No materials shared for this subject yet. Be the first!</p>
+        )}
+            {files.length === 0 && error && (
+            <p className="text-muted-foreground text-center py-8">File listing is unavailable.</p>
+        )}
+        {files.length > 0 && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {files.map((f) => (
+                    <Card key={f.id}>
+                        <CardContent className="p-4 flex items-start gap-4">
+                            <FileIcon className="h-8 w-8 text-primary/70 mt-1" />
+                            <div className="flex-1 space-y-1">
+                                <p className="font-semibold break-all">{f.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Uploaded by: {f.uploader}
+                                </p>
+                            </div>
+                            <Button asChild variant="ghost" size="icon">
+                                <a href={f.url} target="_blank" rel="noopener noreferrer" download={f.name}>
+                                    <Download className="h-4 w-4" />
+                                </a>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        )}
+    </div>
+    </div>
   );
 }

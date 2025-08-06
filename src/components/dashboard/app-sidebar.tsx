@@ -8,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
+  SidebarContent,
 } from '@/components/ui/sidebar';
 import { SUBJECTS } from '@/lib/constants';
 import { usePathname, useRouter } from 'next/navigation';
@@ -46,21 +47,35 @@ export function AppSidebar() {
             <SidebarTrigger className="ml-auto" />
         </div>
       </SidebarHeader>
-      <SidebarMenu className="flex-1 p-2">
-        {SUBJECTS.map((subject) => (
-          <SidebarMenuItem key={subject.id}>
-            <SidebarMenuButton
-              onClick={() => router.push(`/dashboard/${subject.id}`)}
-              isActive={pathname === `/dashboard/${subject.id}`}
-              className="font-medium"
-              tooltip={subject.name}
-            >
-              <subject.icon className="h-5 w-5" />
-              <span>{subject.name}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
+      <SidebarContent>
+        <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => router.push('/dashboard')}
+                isActive={pathname === '/dashboard'}
+                className="font-medium"
+                tooltip="Subjects"
+              >
+                <Book className="h-5 w-5" />
+                <span>Subjects</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <p className='text-xs text-muted-foreground px-2 pt-2'>All Subjects</p>
+            {SUBJECTS.map((subject) => (
+            <SidebarMenuItem key={subject.id}>
+                <SidebarMenuButton
+                onClick={() => router.push(`/dashboard/${subject.id}`)}
+                isActive={pathname === `/dashboard/${subject.id}`}
+                className="font-medium"
+                tooltip={subject.name}
+                >
+                <subject.icon className="h-5 w-5" />
+                <span>{subject.name}</span>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+            ))}
+        </SidebarMenu>
+      </SidebarContent>
       <SidebarFooter>
          <DropdownMenu>
             <DropdownMenuTrigger asChild>

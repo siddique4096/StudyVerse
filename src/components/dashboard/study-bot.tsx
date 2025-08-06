@@ -4,12 +4,12 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Send, Bot, CornerDownLeft, Sparkles } from 'lucide-react';
+import { Send, Bot, CornerDownLeft, Sparkles, AlertCircle } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { studyBotRespondToQuestions } from '@/ai/flows/studybot-responds-to-questions';
 import { UserContext } from '@/context/user-provider';
 import { Skeleton } from '../ui/skeleton';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import {
   collection,
   query,
@@ -19,26 +19,22 @@ import {
   serverTimestamp,
   where,
   type Timestamp,
+  doc,
+  getDoc,
+  setDoc
 } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-
-interface ChatMessage {
-  id?: string;
-  sender: 'user' | 'bot';
-  text: string;
-  createdAt?: Timestamp | null;
-}
+import { ChatHistoryContext, type ChatMessage } from '@/context/chat-history-provider';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export function StudyBot() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const { username } = useContext(UserContext);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { messages, setMessages, currentChatId, isLoading, setIsLoading, error, setError, loadMessages } = useContext(ChatHistoryContext);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -48,34 +44,11 @@ export function StudyBot() {
   }, []);
 
   useEffect(() => {
-    if (!currentUser || !db) return;
+    if (currentChatId && currentUser) {
+      loadMessages(currentChatId, currentUser.uid);
+    }
+  }, [currentChatId, currentUser, loadMessages]);
 
-    const q = query(
-      collection(db, 'studybot-chats'),
-      where('userId', '==', currentUser.uid),
-      orderBy('createdAt', 'asc')
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const msgs = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as ChatMessage)
-        );
-        setMessages(msgs);
-      },
-      (error) => {
-        console.error('Error fetching studybot messages:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Could not load chat history.',
-        });
-      }
-    );
-
-    return () => unsubscribe();
-  }, [currentUser, toast]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -88,14 +61,18 @@ export function StudyBot() {
     }
   }, [messages, isLoading]);
 
-  const saveMessage = async (message: ChatMessage) => {
+  const saveMessage = async (chatId: string, message: ChatMessage) => {
     if (!currentUser || !db) return;
     try {
-      await addDoc(collection(db, 'studybot-chats'), {
+      await addDoc(collection(db, 'users', currentUser.uid, 'studybot-chats', chatId, 'messages'), {
         ...message,
-        userId: currentUser.uid,
         createdAt: serverTimestamp(),
       });
+      // Update the parent chat document with the last message and timestamp for sorting history
+      await setDoc(doc(db, 'users', currentUser.uid, 'studybot-chats', chatId), {
+        lastMessage: message.text,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
     } catch (error) {
       console.error('Error saving message: ', error);
       toast({
@@ -108,37 +85,39 @@ export function StudyBot() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() === '' || isLoading || !currentUser) return;
+    if (input.trim() === '' || isLoading || !currentUser || !currentChatId) return;
 
     const userMessage: ChatMessage = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMessage]); // Optimistic UI update
-    await saveMessage(userMessage);
     
     setInput('');
     setIsLoading(true);
+    setError(null);
+    await saveMessage(currentChatId, userMessage);
 
     try {
       const result = await studyBotRespondToQuestions({ question: input });
       const botMessage: ChatMessage = { sender: 'bot', text: result.response };
-      await saveMessage(botMessage);
+      await saveMessage(currentChatId, botMessage);
+      // The onSnapshot listener will add the bot message to the state
     } catch (error) {
+      console.error(error);
+      const errorMessageText = 'Sorry, I encountered an error. Please try again.';
       const errorMessage: ChatMessage = {
         sender: 'bot',
-        text: 'Sorry, I encountered an error. Please try again.',
+        text: errorMessageText,
       };
-      await saveMessage(errorMessage);
+      await saveMessage(currentChatId, errorMessage);
+      setError(errorMessageText);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <h3 className="font-headline text-lg font-semibold p-4 border-b">
-        Ask StudyBot
-      </h3>
+    <div className="flex h-full flex-col bg-muted/30">
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-4xl mx-auto">
           {messages.map((message, index) => (
             <div
               key={message.id || index}
@@ -154,10 +133,10 @@ export function StudyBot() {
                 </Avatar>
               )}
               <div
-                className={`max-w-xs md:max-w-md rounded-lg p-3 ${
+                className={`max-w-xs md:max-w-xl rounded-lg p-3 shadow-sm ${
                   message.sender === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                    : 'bg-background'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap break-words">
@@ -181,7 +160,7 @@ export function StudyBot() {
                   <Bot className="h-5 w-5 text-primary" />
                 </AvatarFallback>
               </Avatar>
-              <div className="bg-muted rounded-lg p-3 space-y-2 w-48">
+              <div className="bg-background rounded-lg p-3 space-y-2 w-48 shadow-sm">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
@@ -200,24 +179,35 @@ export function StudyBot() {
           </div>
         )}
       </ScrollArea>
-      <div className="border-t p-4">
-        <form onSubmit={handleSubmit} className="relative flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask StudyBot..."
-            className="pr-10"
-            autoComplete="off"
-            disabled={isLoading || !currentUser}
-          />
-          <Button type="submit" size="icon" disabled={isLoading || !currentUser}>
-            <Send className="h-5 w-5" />
-          </Button>
-        </form>
-        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-          Press <CornerDownLeft className="h-3 w-3" /> to send. StudyBot may
-          produce inaccurate information.
-        </p>
+      <div className="border-t p-4 bg-background">
+        <div className="max-w-4xl mx-auto">
+            {error && (
+                <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Request Failed</AlertTitle>
+                    <AlertDescription>
+                    {error}
+                    </AlertDescription>
+                </Alert>
+            )}
+            <form onSubmit={handleSubmit} className="relative flex gap-2">
+            <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask StudyBot..."
+                className="pr-10"
+                autoComplete="off"
+                disabled={isLoading || !currentUser || !currentChatId}
+            />
+            <Button type="submit" size="icon" disabled={isLoading || !currentUser || !currentChatId}>
+                <Send className="h-5 w-5" />
+            </Button>
+            </form>
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+            Press <CornerDownLeft className="h-3 w-3" /> to send. StudyBot may
+            produce inaccurate information.
+            </p>
+        </div>
       </div>
     </div>
   );
