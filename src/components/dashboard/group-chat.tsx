@@ -18,6 +18,7 @@ import { Send, Smile } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { UserContext } from '@/context/user-provider';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Badge } from '../ui/badge';
 
 interface Message {
   id: string;
@@ -27,6 +28,7 @@ interface Message {
 }
 
 const EMOJIS = ['😀', '😂', '😍', '👍', '🙏', '🤔', '🎉', '🔥'];
+const QUICK_REPLIES = ["Let's start a study session!", "Anyone have notes on this?", "I'm stuck on this problem.", "Good luck everyone!"];
 
 export function GroupChat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -35,12 +37,15 @@ export function GroupChat() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!db) return;
     const q = query(collection(db, 'messages'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgs = snapshot.docs.map(
         (doc) => ({ id: doc.id, ...doc.data() } as Message)
       );
       setMessages(msgs);
+    }, (error) => {
+      console.error("Error fetching messages:", error);
     });
     return () => unsubscribe();
   }, []);
@@ -54,18 +59,25 @@ export function GroupChat() {
     }
   }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMessage.trim() === '' || !username) return;
+  const sendMessage = async (text: string) => {
+    if (text.trim() === '' || !username || !db) return;
 
     await addDoc(collection(db, 'messages'), {
-      text: newMessage,
+      text: text,
       username: username,
       createdAt: serverTimestamp(),
     });
+  }
 
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(newMessage);
     setNewMessage('');
   };
+
+  const handleQuickReply = (reply: string) => {
+    sendMessage(reply);
+  }
 
   const addEmoji = (emoji: string) => {
     setNewMessage((prev) => prev + emoji);
@@ -102,7 +114,19 @@ export function GroupChat() {
           ))}
         </div>
       </ScrollArea>
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-2">
+        <div className="flex flex-wrap gap-2">
+            {QUICK_REPLIES.map((reply) => (
+                <Badge 
+                    key={reply} 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-accent"
+                    onClick={() => handleQuickReply(reply)}
+                >
+                    {reply}
+                </Badge>
+            ))}
+        </div>
         <form onSubmit={handleSendMessage} className="relative flex gap-2">
           <Input
             value={newMessage}
