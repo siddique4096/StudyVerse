@@ -45,14 +45,13 @@ const studyBotRespondToQuestionsFlow = ai.defineFlow(
     outputSchema: StudyBotRespondToQuestionsOutputSchema,
   },
   async (input) => {
-    const {text} = await ai.generate({
-        prompt: `You are StudyBot, a friendly and helpful study assistant. A student has asked you a question.
+    const llmResponse = await studyBotPrompt(input);
+    const textResponse = llmResponse.text;
+    
+    if (textResponse === undefined) {
+      return { response: "Sorry, I couldn't generate a response." };
+    }
 
-        Question: ${input.question}
-        
-        Provide a concise and helpful answer to the student's question.`,
-    });
-
-    return { response: text };
+    return { response: textResponse };
   }
 );
