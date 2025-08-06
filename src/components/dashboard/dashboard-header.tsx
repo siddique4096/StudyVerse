@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Book, MessageSquare } from 'lucide-react';
+import { Book, Bot, MessageSquare } from 'lucide-react';
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -13,7 +13,13 @@ export function DashboardHeader() {
       path: '/dashboard',
       label: 'Subjects',
       icon: Book,
-      matcher: (path: string) => path.startsWith('/dashboard') && !path.includes('/chat'),
+      matcher: (path: string) => path === '/dashboard' || path.startsWith('/dashboard/[subject]'),
+    },
+    {
+        path: '/dashboard/studybot',
+        label: 'StudyBot',
+        icon: Bot,
+        matcher: (path: string) => path.startsWith('/dashboard/studybot'),
     },
     {
       path: '/dashboard/chat',
