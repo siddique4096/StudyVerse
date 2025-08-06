@@ -9,7 +9,7 @@ export default function SubjectPage({ params }: { params: { subject: string } })
         notFound();
     }
 
-    return <SubjectView subject={subject} />;
+    return <SubjectView subjectId={subject.id} subjectName={subject.name} />;
 }
 
 export async function generateStaticParams() {

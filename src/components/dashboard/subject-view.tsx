@@ -19,8 +19,8 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { UserContext } from '@/context/user-provider';
-import { UploadCloud, File as FileIcon, Download, Trash2, X } from 'lucide-react';
-import type { Subject } from '@/lib/constants';
+import { UploadCloud, File as FileIcon, Download, X } from 'lucide-react';
+import { SUBJECTS } from '@/lib/constants';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface FileData {
@@ -32,7 +32,12 @@ interface FileData {
   createdAt: Timestamp;
 }
 
-export function SubjectView({ subject }: { subject: Subject }) {
+interface SubjectViewProps {
+  subjectId: string;
+  subjectName: string;
+}
+
+export function SubjectView({ subjectId, subjectName }: SubjectViewProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,10 +45,13 @@ export function SubjectView({ subject }: { subject: Subject }) {
   const { username } = useContext(UserContext);
   const { toast } = useToast();
 
+  const subject = SUBJECTS.find(s => s.id === subjectId);
+  const Icon = subject?.icon;
+
   useEffect(() => {
     const q = query(
       collection(db, 'files'),
-      where('subject', '==', subject.id),
+      where('subject', '==', subjectId),
       orderBy('createdAt', 'desc')
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -53,7 +61,7 @@ export function SubjectView({ subject }: { subject: Subject }) {
       setFiles(fileList);
     });
     return () => unsubscribe();
-  }, [subject.id]);
+  }, [subjectId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,7 +75,7 @@ export function SubjectView({ subject }: { subject: Subject }) {
     setIsUploading(true);
     setUploadProgress(0);
 
-    const storageRef = ref(storage, `materials/${subject.id}/${Date.now()}_${file.name}`);
+    const storageRef = ref(storage, `materials/${subjectId}/${Date.now()}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -91,7 +99,7 @@ export function SubjectView({ subject }: { subject: Subject }) {
           name: file.name,
           url: downloadURL,
           uploader: username,
-          subject: subject.id,
+          subject: subjectId,
           createdAt: serverTimestamp(),
         });
 
@@ -112,9 +120,9 @@ export function SubjectView({ subject }: { subject: Subject }) {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <subject.icon className="h-10 w-10 text-primary" />
+              {Icon && <Icon className="h-10 w-10 text-primary" />}
               <div>
-                <CardTitle className="font-headline text-3xl">{subject.name}</CardTitle>
+                <CardTitle className="font-headline text-3xl">{subjectName}</CardTitle>
                 <CardDescription>Share and discover study materials.</CardDescription>
               </div>
             </div>
