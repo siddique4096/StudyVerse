@@ -110,13 +110,6 @@ export function StudyBot() {
                 <p className='text-muted-foreground text-sm'>
                     Stuck on a problem? Need a concept clarified? Ask away!
                 </p>
-                <div className="pt-4 space-y-2">
-                    {quickQuestions.map(q => (
-                        <Button key={q} variant="outline" size="sm" className="w-full justify-start" onClick={() => setInput(q)}>
-                           {q}
-                        </Button>
-                    ))}
-                </div>
             </div>
         )}
       </ScrollArea>
