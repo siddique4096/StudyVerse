@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Book, Bot, MessageSquare } from 'lucide-react';
+import { SidebarTrigger } from '../ui/sidebar';
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -31,7 +32,8 @@ export function DashboardHeader() {
 
   return (
     <header className="flex-shrink-0 border-b bg-background px-4 py-2 sm:px-6">
-      <div className="flex items-center justify-start">
+      <div className="flex items-center justify-start gap-2">
+        <SidebarTrigger className="h-7 w-7" />
         <nav className="flex items-center space-x-2">
           {navItems.map((item) => (
             <Button

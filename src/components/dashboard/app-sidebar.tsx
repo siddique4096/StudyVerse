@@ -8,7 +8,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
   SidebarContent,
 } from '@/components/ui/sidebar';
 import { SUBJECTS } from '@/lib/constants';
@@ -45,7 +44,6 @@ export function AppSidebar() {
                 <Book className="h-6 w-6"/>
             </Button>
             <h1 className="font-headline text-xl font-semibold">StudyVerse</h1>
-            <SidebarTrigger className="ml-auto" />
         </div>
       </SidebarHeader>
       <SidebarContent>
