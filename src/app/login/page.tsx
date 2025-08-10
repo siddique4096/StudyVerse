@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -113,15 +114,6 @@ export default function AuthPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-             <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
-                <GoogleIcon className="mr-2 h-5 w-5" />
-                {loading ? 'Signing in...' : 'Sign in with Google'}
-             </Button>
-            <div className="flex items-center">
-              <Separator className="flex-1" />
-              <span className="px-4 text-xs text-muted-foreground">OR</span>
-              <Separator className="flex-1" />
-            </div>
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">
@@ -132,66 +124,88 @@ export default function AuthPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="you@example.com"
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="••••••••"
-                      disabled={loading}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Logging in...' : 'Login'}
-                  </Button>
-                </form>
+                 <div className="space-y-4 pt-4">
+                    <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
+                        <GoogleIcon className="mr-2 h-5 w-5" />
+                        {loading ? 'Logging in...' : 'Login with Google'}
+                    </Button>
+                    <div className="flex items-center">
+                        <Separator className="flex-1" />
+                        <span className="px-4 text-xs text-muted-foreground">OR</span>
+                        <Separator className="flex-1" />
+                    </div>
+                    <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="login-email">Email</Label>
+                        <Input
+                        id="login-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder="you@example.com"
+                        disabled={loading}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="login-password">Password</Label>
+                        <Input
+                        id="login-password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        disabled={loading}
+                        />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
+                    </Button>
+                    </form>
+                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="you@example.com"
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="6+ characters"
-                      disabled={loading}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
+                <div className="space-y-4 pt-4">
+                    <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
+                        <GoogleIcon className="mr-2 h-5 w-5" />
+                        {loading ? 'Signing up...' : 'Sign up with Google'}
+                    </Button>
+                    <div className="flex items-center">
+                        <Separator className="flex-1" />
+                        <span className="px-4 text-xs text-muted-foreground">OR</span>
+                        <Separator className="flex-1" />
+                    </div>
+                    <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="signup-email">Email</Label>
+                        <Input
+                        id="signup-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder="you@example.com"
+                        disabled={loading}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="signup-password">Password</Label>
+                        <Input
+                        id="signup-password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="6+ characters"
+                        disabled={loading}
+                        />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? 'Creating account...' : 'Create Account'}
+                    </Button>
+                    </form>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
