@@ -2,7 +2,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
-import { getAuth, type Auth } from 'firebase/auth';
+import { getAuth, type Auth, GoogleAuthProvider } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,6 +18,7 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
+let googleProvider: GoogleAuthProvider;
 
 function initializeFirebase() {
   if (!getApps().length) {
@@ -28,9 +29,10 @@ function initializeFirebase() {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
+  googleProvider = new GoogleAuthProvider();
 }
 
 // Initialize on first load
 initializeFirebase();
 
-export { app, db, storage, auth };
+export { app, db, storage, auth, googleProvider };
